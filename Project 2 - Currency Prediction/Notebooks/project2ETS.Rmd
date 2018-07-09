@@ -1,0 +1,65 @@
+---
+title: "Untitled"
+output: html_document
+---
+importing data
+```{r }
+library(forecast)
+library(stats)
+?forecast
+
+df <- read.csv("P2training.csv")
+TSerires <- ts(df$JPY.USD,frequency = 5)
+```
+
+holt's
+
+```{r}
+?holt
+
+HOLT <- holt(TSerires)
+HOLT$model
+
+#tsdisplay(residuals(HOLT))
+```
+
+
+
+Holt winters:
+
+```{r}
+?hw
+
+HW <- hw(TSerires)
+HW$model
+```
+
+
+Best ETS
+```{r}
+?ets
+ETS <- ets(TSerires)
+
+fit <- arfima(TSerires)
+fit
+tsdisplay(residuals(fit))
+```
+
+
+
+
+ARMA
+
+```{r}
+
+fitARMA <- arima(TSerires, order=c(p, d, q)
+fitARMA
+```
+
+
+```{r}
+fitARIMA <- auto.arima(TSerires)
+fitARIMA
+
+```
+

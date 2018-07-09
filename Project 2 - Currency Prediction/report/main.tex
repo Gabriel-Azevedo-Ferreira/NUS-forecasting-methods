@@ -1,0 +1,517 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% University Assignment Title Page 
+% LaTeX Template
+% Version 1.0 (27/12/12)
+%
+% This template has been downloaded from:
+% http://www.LaTeXTemplates.com
+%
+% Original author:
+% WikiBooks (http://en.wikibooks.org/wiki/LaTeX/Title_Creation)
+%
+% License:
+% CC BY-NC-SA 3.0 (http://creativecommons.org/licenses/by-nc-sa/3.0/)
+% 
+% Instructions for using this template:
+% This title page is capable of being compiled as is. This is not useful for 
+% including it in another document. To do this, you have two options: 
+%
+% 1) Copy/paste everything between \begin{document} and \end{document} 
+% starting at \begin{titlepage} and paste this into another LaTeX file where you 
+% want your title page.
+% OR
+% 2) Remove everything outside the \begin{titlepage} and \end{titlepage} and 
+% move this file to the same directory as the LaTeX file you wish to add it to. 
+% Then add \input{./title_page_1.tex} to your LaTeX file where you want your
+% title page.
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\title{Title page with logo}
+%----------------------------------------------------------------------------------------
+%	PACKAGES AND OTHER DOCUMENT CONFIGURATIONS
+%----------------------------------------------------------------------------------------
+
+\documentclass[12pt]{article}
+\usepackage[english]{babel}
+%\usepackage[utf8x]{inputenc}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage[colorinlistoftodos]{todonotes}
+\usepackage{verbatim}
+\begin{document}
+
+\begin{titlepage}
+
+\newcommand{\HRule}{\rule{\linewidth}{0.5mm}} % Defines a new command for the horizontal lines, change thickness here
+
+\center % Center everything on the page
+	 
+%----------------------------------------------------------------------------------------
+%	HEADING SECTIONS
+%----------------------------------------------------------------------------------------
+
+\textsc{\LARGE National Univaesity of Singapore}\\[1.5cm] % Name of your university/college
+\textsc{\Large IE5202 - Forecasting Methods}\\[0.5cm] % Major heading such as course name
+\textsc{\large Project 2}\\[0.5cm] % Minor heading such as course title
+
+%----------------------------------------------------------------------------------------
+%	TITLE SECTION
+%----------------------------------------------------------------------------------------
+
+\HRule \\[0.4cm]
+{ \huge \bfseries Currency Forecasting}\\[0.4cm] % Title of your document
+\HRule \\[1.5cm]
+	 
+%----------------------------------------------------------------------------------------
+%	AUTHOR SECTION
+%----------------------------------------------------------------------------------------
+
+\begin{minipage}{0.4\textwidth}
+\begin{flushleft} \large
+\emph{Author:}\\
+Gabriel \textsc{Azevedo Ferreira} % Your name
+\end{flushleft}
+\end{minipage}
+~
+\begin{minipage}{0.4\textwidth}
+\begin{flushright} \large
+\emph{Supervisor:} \\
+\textsc{Chen} Nan% Supervisor's Name
+\end{flushright}
+\end{minipage}\\[2cm]
+
+% If you don't want a supervisor, uncomment the two lines below and remove the section above
+%\Large \emph{Author:}\\
+%John \textsc{Smith}\\[3cm] % Your name
+
+%----------------------------------------------------------------------------------------
+%	DATE SECTION
+%----------------------------------------------------------------------------------------
+
+{\large \today}\\[2cm] % Date, change the \today to a set date if you want to be precise
+%----------------------------------------------------------------------------------------
+%	LOGO SECTION
+%----------------------------------------------------------------------------------------
+
+\includegraphics[width = 0.8\textwidth]{Images/logo_NUS.png}\\[1cm] % Include a department/university logo - this will require the graphicx package
+	 
+%----------------------------------------------------------------------------------------
+
+\vfill % Fill the rest of the page with whitespace
+
+\end{titlepage}
+
+\section{Introduction}
+
+The goal of this project is to predict foreign exchange rates. We are given a dataset with
+exchange rates of eight countries relative to the United States Dollar, and our goal is to 
+predict the Japanese yen currency. 
+
+This is a time series analysis problem and, in this project, we tackled it by applying the main
+tools taught during the IE5202 classes.
+
+In order to predict the exchange rate for a given date, 
+we are only allowed to use all past data relative to that date. 
+This simulates a real forecasting situation, where the future data has not yet occured.
+
+The evaluation of the model is done through the one step ahead error.
+For each method, we minimize the sum of squared errors for the one step ahead prediction (SSE).
+Because the mean squared erros (MSE) differs from the SSE by only a multiplied constant (the number of samples),
+we compared the different methods according to their MSE.
+
+On the first part of this project we only used the time series to perform the prediction,
+while, on the second part, we used all the exchange rates (including the ``JPY/USD'' itself)
+to perform this task.
+
+On the programming part, we chose to work in python, making use of the case studies used during 
+the classes. A part of the code is done in R, where the 
+package \textit{forecasting} played an important role.
+
+\section{Visualization}
+
+The first step on the project was to look at the data and try to draw conclusions about it.
+
+\begin{figure}[!ht]
+	\centering
+	\includegraphics[width = \textwidth]{Images/Currencies.eps}
+	\caption{Currencies over time}
+	\label{fig:Currencies}
+\end{figure} 
+
+In order for the visualization to be more accurate, we scaled JPY/USD (only during plottings).
+
+\begin{figure}[!ht]
+	\centering
+	\includegraphics[width = \textwidth]{Images/CurrenciesScaling.eps}
+	\caption{Currencies over time - JPY scaled for visualization}
+\end{figure}
+
+We also plot the first order differences (Figure \ref{fig:diff}).
+
+\begin{figure}[!ht]
+	\centering
+	\includegraphics[width = 0.8\textwidth]{Images/diff.eps}
+	\caption{$z_t = y_t - y_{t-1}$. $z_t$ Versus time}
+	\label{fig:diff}
+\end{figure}
+
+We conclude from Figure \ref{fig:diff} and \ref{fig:Currencies} that, although data does not change smoothly, the noise seems to be relatively small compared to the JPY/USD overall value.
+
+In working with the first order differences, we manage to have a data more closer to a stationary model (having less variation on properties like the mean and variance) 
+we take the differences between the two successive currency exchanges. The variance and mean are
+shown in Figure \ref{fig:meanVar}, before (left hand side) and after (right hand side) the difference transformation.
+
+\begin{figure}[!ht]
+	\centering
+	\includegraphics[width = 0.8\textwidth]{Images/MeanAndVar.eps}
+	\caption{Variance and mean over time. The Left side represents $z_t = y_t - y_{t-1}$, that 
+		is data after the transformation and the right hand side represents 
+		data before the transformation.
+		The variance and mean were computed by considering the last 100 samples	(from $t-100$ to $t-1$ )}
+	\label{fig:meanVar}
+\end{figure}
+
+The plots in Figure \ref{fig:meanVar} show that after the transformation ($z_t = y_t - y_{t-1}$)
+the mean is rather constant (slightly oscilating around zero) and eventhough the variance changes over time,
+the difference in absolute values is rather low.
+However, the variance on the data without transformation is less stable,
+varying in a much larger range of
+values (from 200 to 400). The mean of the transformed data also changes over time in a significant way. We 
+conclude, therefore, that the assumption that the data holds the same characteristics is not reasonable to the 
+non transformed data but might be for $z_t = y_t - y_{t-1}$. This assumption specially important for ARMA models.
+
+We also looked at the autocorrelation on $y_t$ and $z_t$.
+This is shown on the Figures \ref{fig:ShiftPlot}, \ref{fig:cor1} and \ref{fig:cor2}.
+
+\begin{figure}[!ht]
+	\centering
+	\includegraphics[width = 0.8\textwidth]{Images/Correlation1.eps}
+	\caption{Four plots of $z_t$ Vs $z_{t-1}$, where $z_t = y_t - y_{t-i} $}
+	\label{fig:ShiftPlot}
+\end{figure}
+
+Figure \ref{fig:ShiftPlot} simulates the distribution of $P(z_t,z_{t-1})$ where $z_t = y_t - y_{t-i}$. 
+We can see that the data seems to have a normal shape with mean close to $(0,0)$ 
+(meaning that it seems not to have a skew and has a bell-shape, although this distribution is not necessarily normal).
+
+\begin{figure}[!ht]
+	\centering
+	\includegraphics[width = 0.8\textwidth]{Images/Correlation2.png}
+	\caption{AACF and PACF for $z_t = y_t - y_{t-1} $}
+	\label{fig:cor1}
+\end{figure}
+
+\begin{figure}[!ht]
+	\centering
+	\includegraphics[width = 0.8\textwidth]{Images/Correlation3TrueNotDiff.png}
+        \caption{AACF and PACF for $y_t$}
+       	\label{fig:cor2}
+\end{figure}
+
+Figure \ref{fig:cor1} and Figure \ref{fig:cor2} show that data is strongly correlated to the past values and, 
+given the influence of the last information, the past data might not be highly important. 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\section{PART 1}
+
+On the first part of the project we try to obtain the best predictor (acoording to the SSE loss and the one step 
+ahead error) using only the ``JPY/USD'' time series (and no other features).
+
+\subsection{Moving average}
+
+The moving average is one of the simplest methods, but allowed us to reach very low errors.
+Because $y_t$ is higly dependent on $y_{t-1}$, we obtained the best results using
+low number of past data in the average (that is, a low lag). In particular, The lowest MSE was
+obtained in the simplest model possible: 
+
+$$\hat{y_t} = y_{t-1}$$
+
+The value of MSE obtained was
+1.33712
+
+\begin{figure}[!ht]
+        \centering
+        \includegraphics[width = \textwidth]{Images/MovingAve2.eps}
+        \caption{Mean and Variance over Time}
+        \label{fig:MovAve}
+\end{figure}
+
+\begin{figure}[!ht]
+        \centering
+        \includegraphics[width = 0.7\textwidth]{Images/MovingAveMSE.eps}
+        \caption{Mean and Variance over Time}
+        \label{fig:MovAveMSE}
+\end{figure}
+
+%menor erro possivel mas possivel instabilidade ?
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{Regression on time}
+
+Due to the considerable autocorrelation, we expect that a simple regression on time would not be sufficient for
+a good prediction. Linear Regression models assume that the samples are independent. 
+Therefore, Ordinary Least square fails to take advantage of this information when the data is highly 
+auto-correleted. 
+On the other hand, the information that the data has high auto-correlation can be very useful if well explored.
+
+However, in order to illustrate the non suitability of simple regression in ths situation,
+we created two linear regression models (Figure \ref{fig:linReg} and Figure \ref{fig:polReg}). As expected, the results  were far worse that the ones obtained with the moving average.
+
+\begin{figure}[!ht]
+        \centering
+        \includegraphics[width = \textwidth]{Images/LinReg.eps}
+        \caption{Mean and Variance over Time}
+        \label{fig:linReg}
+\end{figure}
+
+\begin{figure}[!ht]
+        \centering
+        \includegraphics[width = \textwidth]{Images/PolReg.eps}
+        \caption{Mean and Variance over Time}
+        \label{fig:polReg}
+\end{figure}
+
+
+
+\subsection{ETS}
+
+\subsubsection{Exponential Smoothing Without Trend}
+
+The best parameter $\alpha$ (i.e. the one minimizing the SSE) was found to $\alpha = 1$, 
+that is, the model equivalent to repeting the last day prediction.(Therefore, MSE = 1.33712)
+This is shown in Figure
+\ref{fig:ewma}. 
+
+\begin{figure}[!ht]
+	\centering
+	\includegraphics[width = 0.6\textwidth]{Images/ewma.eps}
+        \caption{Mean and Variance over Time}
+        \label{fig:ewma}
+\end{figure}
+
+\subsubsection{Holt's Trend Corrected Smoothing}
+
+We now considered a model with a linear trend, that is, $\hat{y}_t = B t + L$
+(where we update $B$ and $L$ according to the exponential smoothing equations).
+The best model found by the \textit{``forecasting''} package on R, by minimizing the MSE,
+was still practically the day-before prediction ($\hat{y_t} = y_{t-1}$).
+
+The parameters for this model are  $\alpha = 0.9999 $ and $\beta = 0.0001$, and the MSE is 1.336714.
+We recall that the updating equations are:
+
+$$
+L_n = \alpha y_n + (1 − \alpha)(L_{n−1} + B_{n−1})
+$$
+$$
+Bn = \beta(L_n − L_{n−1} ) + (1 − \beta)B_{n−1}
+$$
+
+The difference from the day before prediction ($\alpha =1$ and $\beta = 0$) can be explained by the 
+numerical optimization methods used. Therefore, the model found by the package can be considered equivalent
+to $\hat{y_t} = y_{t-1}$.
+
+We consider a multiplicative trend, and a damped model, and the results were slightly better.
+The model used contains the following structure.
+
+\begin{align*} 
+	\hat{y}|_{t+h}{t} &amp;=
+	\ell_{t}b_{t}^{(\phi+\phi^2 + \dots + \phi^{h})} \\
+	\ell_{t} &amp;= \alpha y_{t} + (1 - \alpha)\ell_{t-1}
+	b^\phi_{t-1}\\ b_{t} &amp;= \beta^*\frac{\ell_{t}}{
+	\ell_{t-1}} + (1 -\beta^*)b_{t-1}^{\phi}. 
+\end{align*} 
+
+The coefficients found where the followig:
+
+$$
+\alpha = 0.9999 
+\beta  = 0.0284 
+\phi   = 0.9347 
+$$
+
+And the MSE was: 1.331441
+
+
+\subsubsection{Holt-Winters Filtering}
+
+In this part we took the seasoonality factor into account.
+We tested a variaty of seasonalities periods, from 2 to 20.
+However, this feature didn't play an important role on the prediction, and the model presenting the least MSE 
+was also roughly equivalent to the day before prediction. For period equals 11 days, we found 
+
+$$
+\alpha = 0.9999,
+\beta  = 0.0076 \text{ and }
+\gamma = 1e-04
+$$
+ 
+The MSE was 1.337366.
+
+Again, the parameters were virtually zero except for $\alpha$, 
+which is practically one. This makes the model equivalent to day-before prediction.
+
+
+%\subsection{Best ETS}
+
+%Among all ETS model, the one that performs best was found to be the following:
+
+
+%We found that the best parameters (minimizing the MSE) were
+%$
+%\alpha = 0.9898,
+%\beta  = 0.0428 \text{ and }
+%\phi   = 0.865 
+%$.
+
+%The MSE was  1.329375, which represents a slight improvement compared to the 
+%previous results, being the best model so far.
+
+\subsection{ARIMA}
+
+ARIMA is a generalization of the ARMA model. It has the follows the following structure:
+
+$$
+\begin{array}{c c c c}
+(1-\phi_1B - \cdots - \phi_p B^p) & (1-B)^d y_{t} &= &c + (1 + \theta_1 B + \cdots + \theta_q B^q)e_t\\
+\uparrow & \uparrow & &\uparrow\\
+\text{AR($p$)} & \text{$d$ differences} & &\text{MA($q$)}\\
+\end{array}
+$$
+
+where $B$ is the differentiating operator.
+The optimal values for the $\phi$'s and $\theta$'s are:
+\begin{center}
+	\begin{tabular}{| l | l|| l | l|}
+		\hline
+$\phi_{1} $ &0.134481483 	&$\theta_{1 }$	& -0.10518325		\\\hline
+$\phi_{2 }$ &0.265028864 	&$\theta_{2}$ 	&-0.24936813		\\\hline
+$\phi_{3} $ &0.038526979	&$\theta_{20}$ 	&0.13254135		\\\hline
+$\phi_{17}$ &-0.101683572	&$\theta_{21}$ 	&-0.01394113		\\\hline
+$\phi_{18}$ &0.013674558	&$\theta_{22}$ 	&-0.03305159		\\\hline
+$\phi_{19}$ &0.026949082 	&$\theta_{40}$ 	&0.11987226 		\\\hline
+$\phi_{20}$ &0.003917561	&$\theta_{41}$ 	&0.01260855		\\\hline
+$\phi_{40}$ &-0.073276886	&$\theta_{42}$ 	&-0.02989232		\\\hline
+$\phi_{41}$ & 0.009854384	& p     &	43	\\\hline
+$\phi_{42}$ &0.019420490 	&d  	&	1	\\\hline
+$\phi_{43}$ &0.002823137	& q	&	42	\\\hline
+	\end{tabular}
+\end{center}
+
+The MSE obtained was:
+1.328867
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%PARTE 2
+\section{Part 2}
+
+In Part 2 we tested many number of lags and chose the model with least MSE on 
+the fraction of the test data for which the  target is available.
+
+
+\subsection{Day before prediction}
+
+ $$\hat{y_t} = y_{t-1}$$
+
+This model gave MSE = 1.121705.
+
+\subsection{Multiple regression}
+
+We analyzed the correlations between variations on JPY/USD 
+and variations in other currencies exchanges. Table \ref{tab:corrCoef} show the results.
+The correlations were measured between the JPY/USD and the othe currencies shifted of one day backwards.
+For example, the element at row one and column two represents the correlation between JPY and AUD
+shifted one day backwards.
+The element at row two and column two represents the correlation between the first order difference of 
+JPY and the first order difference of AUD.
+Since the coeficients of both first and second order dfference are close to zero, we can not conclude that
+changes on JPY are related to one day past changes of other currencies.
+
+We also plot the correlations with different time-differences 
+(when the correlation data is shifted backwards of step values greater than one)
+and the coefficients were close to zero in all cases tested.
+
+\begin{figure}[!ht]
+\begin{center}
+    \begin{tabular}{| l | l | l | l | l | l | l | l | l |}
+	\hline
+		& JPY & AUD & GBP & CAD & NLG & FRF  & DEM & CHF    			\\ \hline \hline
+$y_t$ 		& 0.9997  &-0.6091 & 0.0906  &-0.1319  & 0.837  & 0.5435  & 0.8556  & 0.8823   \\ \hline
+$z_t=y_t-y_{t-1}$ &0.0310&0.00212  & -0.0051 & 0.00622 & 0.0149 & 0.0174  & 0.00898 & 0.0213   \\ \hline
+$w_t=z_t-z_{t-1}$ &0.0069& 0.00117 &  0.0035 &  0.00111& 0.0044 & 0.0041  & 0.00460 & 0.0045   \\ \hline
+    \end{tabular}
+\end{center}
+	\caption{Each element of the table represents the correlation coefficient of JPY.USD against one of the eight currencies shifted of one day period and transformed. The first row represents no transformation, while the second row represents the first order difference and the third shows the second order difference.}
+	\label{tab:corrCoef}
+\end{figure}
+
+We performed linear regression having as features the information about all currencies in the past k 
+days (dat is, with lag equals k).
+We also included the days of the week, as dummy variables, but this information
+did not appear to improve the predictions.
+
+For simplicity, we trained our model on the training set and validated it on the testing set. 
+
+We obtained reasonably good results for k = 2.
+
+The coefficients are shown in the attachements section. as expected, the coefficient of JPY shifted of one time
+unit (JPY) is close to one.
+
+The MSE for the validation set was: 1.3275 %TODO check parece que tem bug....
+
+
+\section{Conclusion}
+
+In this work we could use many important algorithms in the context of time series data 
+analysis and compare it's results. In this especific problem, most of the algorithms pointed to the fact that the day before prediction might be a very good prediction in currency exchange prediction. The fact that it perfomed better than most of the other methods might be explained by the great correlation between $y_t$ and $y_{t-1}$, and specially the low partial correlation with $y_{t-i}$ , $i>1$ (Figure 7).
+
+Seasonality did not appear to play a significant role in this case.
+
+\newpage
+
+\section{Attachements}
+\begin{verbatim}
+                         OLS Regression Results                            
+==============================================================================
+Dep. Variable:                 Target   R-squared:                       1.000
+Model:                            OLS   Adj. R-squared:                  1.000
+Method:                 Least Squares   F-statistic:                 5.708e+05
+Date:                Sun, 19 Nov 2017   Prob (F-statistic):               0.00
+Time:                        11:22:51   Log-Likelihood:                -6260.4
+No. Observations:                4017   AIC:                         1.255e+04
+Df Residuals:                    4000   BIC:                         1.266e+04
+Df Model:                          16                                         
+Covariance Type:            nonrobust                                         
+==============================================================================
+                coef    std err          t      P>|t|      [0.025      0.975]
+------------------------------------------------------------------------------
+Intercept      1.3032      0.390      3.342      0.001       0.539       2.068
+JPY1           1.0368      0.021     48.498      0.000       0.995       1.079
+AUD1          -0.1557      2.333     -0.067      0.947      -4.730       4.419
+GBP1         -12.2132      6.603     -1.850      0.064     -25.160       0.733
+CAD1           1.4643      5.494      0.267      0.790      -9.306      12.235
+NLG1          19.4638      7.478      2.603      0.009       4.803      34.125
+FRF1           1.9163      1.205      1.590      0.112      -0.447       4.279
+DEM1         -30.5945      8.932     -3.425      0.001     -48.107     -13.082
+CHF1           6.0530      3.568      1.696      0.090      -0.943      13.049
+JPY2          -0.0398      0.021     -1.864      0.062      -0.082       0.002
+AUD2          -0.3845      2.334     -0.165      0.869      -4.960       4.191
+GBP2          12.8218      6.608      1.940      0.052      -0.133      25.776
+CAD2          -1.9707      5.490     -0.359      0.720     -12.735       8.793
+NLG2         -17.4642      7.471     -2.338      0.019     -32.111      -2.817
+FRF2          -2.0386      1.204     -1.693      0.091      -4.399       0.322
+DEM2          29.1209      8.920      3.265      0.001      11.633      46.609
+CHF2          -6.4390      3.571     -1.803      0.071     -13.441       0.563
+==============================================================================
+Omnibus:                      559.862   Durbin-Watson:                   2.001
+ Prob(Omnibus):                  0.000   Jarque-Bera (JB):             2998.918
+Skew:                          -0.552   Prob(JB):                         0.00
+Kurtosis:                       7.086   Cond. No.                     2.19e+05
+\end{verbatim}
+
+
+
+
+\end{document}
+
